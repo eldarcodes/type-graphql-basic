@@ -1,8 +1,9 @@
 import "reflect-metadata";
 import { ApolloServer } from "apollo-server-express";
-import * as Express from "express";
+import Express from "express";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
+import { GraphQLError, GraphQLFormattedError } from "graphql";
 
 import { Register } from "./modules/user/Register";
 
@@ -15,6 +16,12 @@ const start = async () => {
 
   const apolloServer = new ApolloServer({
     schema,
+    // formatError: (error: GraphQLError): GraphQLFormattedError => {
+    //   if (error && error.extensions) {
+    // error.extensions.code = "GRAPHQL_VALIDATION_FAILED";
+    //   }
+    //   return error;
+    // },
   });
 
   const app = Express();
