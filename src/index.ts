@@ -12,12 +12,18 @@ import { redis } from "./redis";
 import cors from "cors";
 import { MeResolver } from "./modules/user/Me";
 import { MyContext } from "./types/MyContext";
+import { ConfirmUserResolver } from "./modules/user/ConfirmUser";
 
 const start = async () => {
   await createConnection();
 
   const schema = await buildSchema({
-    resolvers: [RegisterResolver, LoginResolver, MeResolver],
+    resolvers: [
+      RegisterResolver,
+      LoginResolver,
+      MeResolver,
+      ConfirmUserResolver,
+    ],
     authChecker: ({ context: { req } }) => {
       return !!req.session.userId;
     },
@@ -63,9 +69,9 @@ const start = async () => {
 
   apolloServer.applyMiddleware({ app });
 
-  app.listen(4000, () =>
-    console.log("Server started on http://localhost:4000")
-  );
+  app.listen(4000, () => {
+    console.log("Server started on http://localhost:4000");
+  });
 };
 
 start();
