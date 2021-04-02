@@ -11,17 +11,21 @@ import connectRedis from "connect-redis";
 import { redis } from "./redis";
 import cors from "cors";
 import { MeResolver } from "./modules/user/Me";
+import { MyContext } from "./types/MyContext";
 
 const start = async () => {
   await createConnection();
 
   const schema = await buildSchema({
     resolvers: [RegisterResolver, LoginResolver, MeResolver],
+    authChecker: ({ context: { req } }) => {
+      return !!req.session.userId;
+    },
   });
 
   const apolloServer = new ApolloServer({
     schema,
-    context: ({ req }: any) => ({ req }),
+    context: ({ req }: MyContext) => ({ req }),
     // formatError: (error: GraphQLError): GraphQLFormattedError => {
     //   if (error && error.extensions) {
     // error.extensions.code = "GRAPHQL_VALIDATION_FAILED";
