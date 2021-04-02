@@ -4,17 +4,24 @@ import Express from "express";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
 
-import { Register } from "./modules/user/Register";
+import { RegisterResolver } from "./modules/user/Register";
+import { LoginResolver } from "./modules/user/Login";
+import session from "express-session";
+import connectRedis from "connect-redis";
+import { redis } from "./redis";
+import cors from "cors";
+import { MeResolver } from "./modules/user/Me";
 
 const start = async () => {
   await createConnection();
 
   const schema = await buildSchema({
-    resolvers: [Register],
+    resolvers: [RegisterResolver, LoginResolver, MeResolver],
   });
 
   const apolloServer = new ApolloServer({
     schema,
+    context: ({ req }: any) => ({ req }),
     // formatError: (error: GraphQLError): GraphQLFormattedError => {
     //   if (error && error.extensions) {
     // error.extensions.code = "GRAPHQL_VALIDATION_FAILED";
@@ -23,7 +30,32 @@ const start = async () => {
     // },
   });
 
+  const RedisStore = connectRedis(session);
+
   const app = Express();
+
+  app.use(
+    cors({
+      credentials: true,
+      origin: "http://localhost:3000",
+    })
+  );
+  app.use(
+    session({
+      store: new RedisStore({
+        client: redis as any,
+      }),
+      name: "jid",
+      secret: "secret_for_cookie777",
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 1000 * 60 * 60 * 24 * 7 * 365, // 7 years
+      },
+    })
+  );
 
   apolloServer.applyMiddleware({ app });
 
