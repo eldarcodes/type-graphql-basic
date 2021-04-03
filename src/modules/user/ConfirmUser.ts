@@ -23,7 +23,7 @@ export class ConfirmUserResolver {
     }
 
     User.update({ id: parseInt(userId, 10) }, { confirmed: true });
-    redis.del(token);
+    redis.del(confirmationPrefix + token);
 
     return true;
   }
