@@ -22,7 +22,7 @@ const start = async () => {
 
   const apolloServer = new ApolloServer({
     schema,
-    context: ({ req }: MyContext) => ({ req }),
+    context: ({ req, res }: MyContext) => ({ req, res }),
     // formatError: (error: GraphQLError): GraphQLFormattedError => {
     //   if (error && error.extensions) {
     // error.extensions.code = "GRAPHQL_VALIDATION_FAILED";

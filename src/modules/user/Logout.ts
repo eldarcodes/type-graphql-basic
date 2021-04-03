@@ -4,15 +4,16 @@ import { Ctx, Mutation, Resolver } from "type-graphql";
 @Resolver()
 export class LogoutResolver {
   @Mutation(() => Boolean)
-  async logout(@Ctx() { req }: MyContext): Promise<boolean> {
-    return new Promise((res, rej) =>
+  async logout(@Ctx() { req, res }: MyContext): Promise<boolean> {
+    return new Promise((resolve, reject) =>
       req.session.destroy((error) => {
         if (error) {
           console.log(error);
-          rej(false);
+          return reject(false);
         }
+        res.clearCookie("jid");
 
-        res(true);
+        return resolve(true);
       })
     );
   }

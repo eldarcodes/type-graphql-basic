@@ -64,8 +64,8 @@ var start = function () { return __awaiter(void 0, void 0, void 0, function () {
                 apolloServer = new apollo_server_express_1.ApolloServer({
                     schema: schema,
                     context: function (_a) {
-                        var req = _a.req;
-                        return ({ req: req });
+                        var req = _a.req, res = _a.res;
+                        return ({ req: req, res: res });
                     }
                 });
                 RedisStore = connect_redis_1["default"](express_session_1["default"]);

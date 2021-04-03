@@ -31,7 +31,7 @@ export class ChangePasswordResolver {
 
     await user.save();
 
-    ctx.req.session.userId = user.id;
+    (ctx.req.session as any).userId = user.id;
 
     return user;
   }
