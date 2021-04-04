@@ -4,7 +4,7 @@ import { redis } from "./../../redis";
 import { forgotPasswordPrefix } from "./constants/redisPrefixes";
 import { ChangePasswordInput } from "./changePassword/ChangePasswordInput";
 import { hash } from "bcryptjs";
-import { MyContext } from "@main/types/MyContext";
+import { MyContext } from "./../../types/MyContext";
 
 @Resolver()
 export class ChangePasswordResolver {
