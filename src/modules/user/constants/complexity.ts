@@ -1,0 +1,1 @@
+export const CALCULATED_COMPLEXITY_MAX = 15;

@@ -9,6 +9,12 @@ import { redis } from "./redis";
 import cors from "cors";
 import { MyContext } from "./types/MyContext";
 import { createSchema } from "./utils/createSchema";
+import {
+  fieldExtensionsEstimator,
+  getComplexity,
+  simpleEstimator,
+} from "graphql-query-complexity";
+import { CALCULATED_COMPLEXITY_MAX } from "./modules/user/constants/complexity";
 
 const start = async () => {
   await createConnection();
@@ -18,12 +24,30 @@ const start = async () => {
   const apolloServer = new ApolloServer({
     schema,
     context: ({ req, res }: MyContext) => ({ req, res }),
-    // formatError: (error: GraphQLError): GraphQLFormattedError => {
-    //   if (error && error.extensions) {
-    // error.extensions.code = "GRAPHQL_VALIDATION_FAILED";
-    //   }
-    //   return error;
-    // },
+    plugins: [
+      {
+        requestDidStart: () => ({
+          didResolveOperation({ request, document }) {
+            const complexity = getComplexity({
+              schema,
+              operationName: request.operationName,
+              query: document,
+              variables: request.variables,
+              estimators: [
+                fieldExtensionsEstimator(),
+                simpleEstimator({ defaultComplexity: 1 }),
+              ],
+            });
+            if (complexity > CALCULATED_COMPLEXITY_MAX) {
+              throw new Error(
+                `Sorry, too complicated query! ${complexity} is over ${CALCULATED_COMPLEXITY_MAX} that is the max allowed complexity.`
+              );
+            }
+            console.log("Used query complexity points:", complexity);
+          },
+        }),
+      },
+    ],
   });
 
   const RedisStore = connectRedis(session);
